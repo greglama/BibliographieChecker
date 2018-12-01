@@ -15,13 +15,43 @@ async function getDataFrom(query)
     return textObject.map(e => e.data);
 }
 
+function resultParser(result)
+{
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const title = result.journal.title;
+    const day = result.pubjournal.day;
+    const month = result.pubjournal.month;
+    const year = result.pubjournal.year;
+    const contributors = result.contributors.map(c => c.first + " " + c.middle + " " + c.last).join(" - ");
+    const doi = result.doi.doi;
+
+    let date = "";
+
+    if(day != "" && month != "" && year != "")
+    {
+        date = `${months[parseInt(month)-1]} ${day} ${year}`;
+    }
+    else
+    {
+        date = year;
+    }
+
+    const link = title + 
+    (date != "" ? " (" + date + ")": "") + 
+    (contributors != "" ? "\n" + contributors:"") + 
+    (doi != "" ? "\ndoi : " + doi : "");
+
+    return link;
+}
+
 async function fetchResults(query)
 {
     const results = await getDataFrom(query);
+    const displayResults = results.map(r => resultParser(r));
 
-    const displayResults = results.map(r => `${r.journal.title} (${r.pubjournal.day}/${r.pubjournal.month}/${r.pubjournal.year})\n${r.contributors.map(c => c.first + " " + c.middle + c.last).join(" - ")}\nDOI: ${r.doi.doi}\n`);
-
-    displayResults.map(r => console.log(r));
+    console.log("____________________________\n");
+    displayResults.map(r => console.log(r + "\n"));
+    //console.log(results);
     console.log("____________________________");
     console.log("End of results");
 }
