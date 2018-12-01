@@ -1,0 +1,14 @@
+{
+  "name": "bibliographiechecker",
+  "version": "1.0.0",
+  "description": "Gather data from a paper to create bibliographie",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Gregoire Albizzati",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.3.0"
+  }
+}
