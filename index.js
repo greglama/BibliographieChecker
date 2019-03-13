@@ -1,58 +1,21 @@
-const fetch = require('node-fetch');
-const url = require("url");
-
-//get all the liks to the pages of each resaurants
-async function getDataFrom(query)
-{
-    const baseUrl = "https://crossref.citation-api.com/query?search=";
-
-    const fetchUrl = baseUrl + url.parse(query).href;
-    const response = await fetch(fetchUrl);
-    const text = await response.text();
-
-    const textObject = JSON.parse(text).results;
-
-    return textObject.map(e => e.data);
-}
-
-function resultParser(result)
-{
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const title = result.journal.title;
-    const day = result.pubjournal.day;
-    const month = result.pubjournal.month;
-    const year = result.pubjournal.year;
-    const contributors = result.contributors.map(c => c.first + " " + c.middle + " " + c.last).join(" - ");
-    const doi = result.doi.doi;
-
-    let date = "";
-
-    if(day != "" && month != "" && year != "")
-    {
-        date = `${months[parseInt(month)-1]} ${day} ${year}`;
-    }
-    else
-    {
-        date = year;
-    }
-
-    const link = title + 
-    (date != "" ? " (" + date + ")": "") + 
-    (contributors != "" ? "\n" + contributors:"") + 
-    (doi != "" ? "\ndoi : " + doi : "");
-
-    return link;
-}
+const CrossrefSearch = require("./CrossrefSearch")
 
 async function fetchResults(query)
 {
-    const results = await getDataFrom(query);
-    const displayResults = results.map(r => resultParser(r));
+    // instance of crossref search
+    const crossref = CrossrefSearch();
 
-    console.log("____________________________\n");
-    displayResults.map(r => console.log(r + "\n"));
-    //console.log(results);
-    console.log("____________________________");
+    const results = await crossref.getResults(query);
+
+    console.log("|----------------------------");
+    results.map(r => {
+        console.log("\t\t" + r.display.title + " (year: " + r.display.year + ")\n");
+        console.log("\tpublisher:\t\t" + r.display.publisher + "");
+        console.log("\tDOI:\t\t\t" + r.doi);
+        console.log("\tcan be found at:\t" + r.display.titleurl);
+        console.log("\t____________________________\n");
+    });
+    console.log("|----------------------------");
     console.log("End of results");
 }
 
